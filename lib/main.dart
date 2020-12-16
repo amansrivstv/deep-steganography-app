@@ -2,6 +2,7 @@ import 'package:deep_steganography_app/screens/home_page.dart';
 import 'package:deep_steganography_app/utils/theme_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -9,7 +10,11 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]).then((_) {
-    runApp(MyApp());
+    runApp(
+      ProviderScope(
+        child: MyApp(),
+      ),
+    );
   });
 }
 

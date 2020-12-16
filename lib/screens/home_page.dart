@@ -29,6 +29,10 @@ class HomePage extends StatelessWidget {
                     builder: (ctx) => EncodePage(),
                   ),
                 ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  side: BorderSide(color: Colors.black),
+                ),
                 child: Padding(
                   padding: EdgeInsets.all(40.0),
                   child: Text("Encode"),
@@ -40,6 +44,10 @@ class HomePage extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (ctx) => DecodePage(),
                   ),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  side: BorderSide(color: Colors.black),
                 ),
                 child: Padding(
                   padding: EdgeInsets.all(40.0),

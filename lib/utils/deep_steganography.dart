@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
+import 'package:image_picker/image_picker.dart';
 
 class DeepSteganography {
   final _revealModelFile = 'reveal.tflite';
@@ -19,48 +22,67 @@ class DeepSteganography {
     interpreterHide = await Interpreter.fromAsset(_hideModelFile);
   }
 
-  Future<Uint8List> loadImage(String imagePath) async {
-    var imageByteData = await rootBundle.load(imagePath);
-    return imageByteData.buffer.asUint8List();
+  void dispose() {
+    interpreterReveal.close();
+    interpreterHide.close();
   }
 
-  Future<Uint8List> hideImage(
-      Uint8List coverImage, Uint8List secretImage) async {
+  Future<Uint8List> loadImage(String imagePath) async {
+    Uint8List imageByteData = await File(imagePath).readAsBytes();
+    return imageByteData;
+  }
+
+  Future<String> hideImage(
+      String coverImagePath, String secretImagePath) async {
+    Uint8List coverImage = await loadImage(coverImagePath);
     var coverImageTemp = img.decodeImage(coverImage);
     var coverImageFinal = img.copyResize(coverImageTemp,
         width: MODEL_IMAGE_SIZE, height: MODEL_IMAGE_SIZE);
     var modelhideCoverInput =
         _imageToByteListUInt8(coverImageFinal, MODEL_IMAGE_SIZE, 0, 255);
+
+    Uint8List secretImage = await loadImage(secretImagePath);
     var secretImageTemp = img.decodeImage(secretImage);
     var secretImageFinal = img.copyResize(secretImageTemp,
         width: MODEL_IMAGE_SIZE, height: MODEL_IMAGE_SIZE);
     var modelhideSecretInput =
         _imageToByteListUInt8(secretImageFinal, MODEL_IMAGE_SIZE, 0, 255);
+
     var inputsFormodelhide = [modelhideCoverInput, modelhideSecretInput];
 
     var outputsFormodelhide = Map<int, dynamic>();
     // image 1 224 224 3
-    var outputImageData = [
-      List.generate(
-        MODEL_IMAGE_SIZE,
-        (index) => List.generate(
-          MODEL_IMAGE_SIZE,
-          (index) => List.generate(3, (index) => 0.0),
-        ),
-      ),
-    ];
-    outputsFormodelhide[0] = outputImageData;
+    // var outputImageData = [
+    //   List.generate(
+    //     MODEL_IMAGE_SIZE,
+    //     (index) => List.generate(
+    //       MODEL_IMAGE_SIZE,
+    //       (index) => List.generate(3, (index) => 0.0),
+    //     ),
+    //   ),
+    // ];
+    // outputsFormodelhide[0] = outputImageData;
 
+    outputsFormodelhide[0] = [1];
+
+    print("yo");
     interpreterHide.runForMultipleInputs(
         inputsFormodelhide, outputsFormodelhide);
 
-    var outputImage = _convertArrayToImage(outputImageData, MODEL_IMAGE_SIZE);
+    print("no");
+    var outputImage =
+        _convertArrayToImage(outputsFormodelhide[0], MODEL_IMAGE_SIZE);
     var rotateOutputImage = img.copyRotate(outputImage, 90);
     var flipOutputImage = img.flipHorizontal(rotateOutputImage);
     var resultImage = img.copyResize(flipOutputImage,
         width: coverImageTemp.width, height: coverImageTemp.height);
 
-    return img.encodeJpg(resultImage);
+    var resultImagePath = await ImageGallerySaver.saveImage(
+      img.encodeJpg(resultImage),
+      name: "Ouput",
+    );
+
+    return resultImagePath["filePath"];
   }
 
   Future<Uint8List> revealImage(Uint8List hiddenImage) async {

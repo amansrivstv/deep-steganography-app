@@ -6,7 +6,8 @@ class ImageStorage extends ChangeNotifier {
   String encodeOutputPath;
 
   String decodeInputPath;
-  String decodeOutputPath;
+  String decodeOutputOnePath;
+  String decodeOutputTwoPath;
 
   void notify() {
     notifyListeners();

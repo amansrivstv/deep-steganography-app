@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:deep_steganography_app/state/providers.dart';
 import 'package:deep_steganography_app/utils/theme_data.dart';
 import 'package:deep_steganography_app/widgets/image_box.dart';
@@ -5,6 +7,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/all.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
 
 class EncodePage extends StatefulWidget {
   EncodePage({Key key}) : super(key: key);
@@ -15,6 +18,52 @@ class EncodePage extends StatefulWidget {
 
 class _EncodePageState extends State<EncodePage> {
   final picker = ImagePicker();
+
+  tfl.Interpreter interpreter;
+  var output0 = [1];
+  var output1 = [1];
+  var outputs;
+
+  void _initialize() async {
+    // output: Map<int, Object>
+    outputs = {0: output0, 1: output1};
+    interpreter = await tfl.Interpreter.fromAsset("hide.tflite");
+  }
+
+  void _encode(BuildContext ctx) {
+    String path1 = ctx.read(imageProvider).encodeInputOnePath;
+    String path2 = ctx.read(imageProvider).encodeInputTwoPath;
+    try {
+      interpreter.runForMultipleInputs(
+        [
+          path1,
+          path2,
+        ],
+        outputs,
+      );
+    } catch (e) {
+      print(e);
+    }
+
+    print(outputs[0]);
+    print(outputs[1]);
+    Future.delayed(Duration(seconds: 5), () {
+      print(outputs[0]);
+      print(outputs[1]);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+  }
+
+  @override
+  void dispose() {
+    interpreter.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +79,11 @@ class _EncodePageState extends State<EncodePage> {
             builder: (BuildContext context,
                 T Function<T>(ProviderBase<Object, T>) watch, Widget child) {
               final imageStorage = watch(imageProvider);
+
+              if (imageStorage.encodeInputOnePath != null &&
+                  imageStorage.encodeInputTwoPath != null) {
+                _encode(context);
+              }
 
               return Column(
                 children: [

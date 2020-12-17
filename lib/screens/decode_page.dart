@@ -102,31 +102,66 @@ class _DecodePageState extends State<DecodePage> {
                   Spacer(flex: 1),
                   Expanded(
                     flex: 6,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Column(
-                        children: [
-                          Text("Output Image"),
-                          SizedBox(height: 6.0),
-                          Expanded(
-                            child: imageStorage.decodeOutputPath == null
-                                ? DottedBorder(
-                                    color: Colors.grey,
-                                    strokeWidth: 1,
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 10.0,
-                                      ),
-                                      child: Center(
-                                        child:
-                                            Text("Please select input image"),
-                                      ),
-                                    ),
-                                  )
-                                : ImageBox(imageStorage.decodeOutputPath),
+                    child: Row(
+                      children: [
+                        Spacer(flex: 1),
+                        Expanded(
+                          flex: 6,
+                          child: Column(
+                            children: [
+                              Text("Output Image One"),
+                              SizedBox(height: 6.0),
+                              Expanded(
+                                child: imageStorage.decodeOutputOnePath == null
+                                    ? DottedBorder(
+                                        color: Colors.grey,
+                                        strokeWidth: 1,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 10.0,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                                "Please select input image"),
+                                          ),
+                                        ),
+                                      )
+                                    : ImageBox(
+                                        imageStorage.decodeOutputOnePath),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        Spacer(flex: 1),
+                        Expanded(
+                          flex: 6,
+                          child: Column(
+                            children: [
+                              Text("Output Image Two"),
+                              SizedBox(height: 6.0),
+                              Expanded(
+                                child: imageStorage.decodeOutputTwoPath == null
+                                    ? DottedBorder(
+                                        color: Colors.grey,
+                                        strokeWidth: 1,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 10.0,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                                "Please select input image"),
+                                          ),
+                                        ),
+                                      )
+                                    : ImageBox(
+                                        imageStorage.decodeOutputTwoPath),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Spacer(flex: 1),
+                      ],
                     ),
                   ),
                   Spacer(flex: 1),

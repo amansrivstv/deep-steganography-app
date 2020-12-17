@@ -65,11 +65,11 @@ class DeepSteganography {
 
     outputsFormodelhide[0] = [1];
 
-    print("yo");
+    print(inputsFormodelhide);
+
     interpreterHide.runForMultipleInputs(
         inputsFormodelhide, outputsFormodelhide);
 
-    print("no");
     var outputImage =
         _convertArrayToImage(outputsFormodelhide[0], MODEL_IMAGE_SIZE);
     var rotateOutputImage = img.copyRotate(outputImage, 90);
@@ -85,7 +85,8 @@ class DeepSteganography {
     return resultImagePath["filePath"];
   }
 
-  Future<Uint8List> revealImage(Uint8List hiddenImage) async {
+  Future<List<String>> revealImage(String hiddenImagePath) async {
+    Uint8List hiddenImage = await loadImage(hiddenImagePath);
     var hiddenImageTemp = img.decodeImage(hiddenImage);
     var hiddenImageFinal = img.copyResize(hiddenImageTemp,
         width: MODEL_IMAGE_SIZE, height: MODEL_IMAGE_SIZE);
@@ -95,26 +96,46 @@ class DeepSteganography {
 
     var outputsFormodelreveal = Map<int, dynamic>();
     // image 1 224 224 3
-    var outputImageData = [
-      List.generate(
-        MODEL_IMAGE_SIZE,
-        (index) => List.generate(
-          MODEL_IMAGE_SIZE,
-          (index) => List.generate(3, (index) => 0.0),
-        ),
-      ),
-    ];
-    outputsFormodelreveal[0] = outputImageData;
+    // var outputImageData = [
+    //   List.generate(
+    //     MODEL_IMAGE_SIZE,
+    //     (index) => List.generate(
+    //       MODEL_IMAGE_SIZE,
+    //       (index) => List.generate(3, (index) => 0.0),
+    //     ),
+    //   ),
+    // ];
+    outputsFormodelreveal[0] = [1];
+    outputsFormodelreveal[1] = [1];
 
     interpreterReveal.runForMultipleInputs(
         inputsFormodelreveal, outputsFormodelreveal);
 
-    var outputImage = _convertArrayToImage(outputImageData, MODEL_IMAGE_SIZE);
+    var outputImage =
+        _convertArrayToImage(outputsFormodelreveal[0], MODEL_IMAGE_SIZE);
     var rotateOutputImage = img.copyRotate(outputImage, 90);
     var flipOutputImage = img.flipHorizontal(rotateOutputImage);
     var resultImage = img.copyResize(flipOutputImage,
         width: hiddenImageTemp.width, height: hiddenImageTemp.height);
-    return img.encodeJpg(resultImage);
+
+    var resultImageOnePath = await ImageGallerySaver.saveImage(
+      img.encodeJpg(resultImage),
+      name: "Ouput One",
+    );
+
+    outputImage =
+        _convertArrayToImage(outputsFormodelreveal[1], MODEL_IMAGE_SIZE);
+    rotateOutputImage = img.copyRotate(outputImage, 90);
+    flipOutputImage = img.flipHorizontal(rotateOutputImage);
+    resultImage = img.copyResize(flipOutputImage,
+        width: hiddenImageTemp.width, height: hiddenImageTemp.height);
+
+    var resultImageTwoPath = await ImageGallerySaver.saveImage(
+      img.encodeJpg(resultImage),
+      name: "Ouput Two",
+    );
+
+    return [resultImageOnePath, resultImageTwoPath];
   }
 
   img.Image _convertArrayToImage(

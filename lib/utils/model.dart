@@ -19,9 +19,9 @@ class DeepSteganography {
     interpreterHide = await Interpreter.fromAsset(_hideModelFile);
   }
 
-  Future<Uint8List> loadHiddenImage(String hiddenImagePath) async {
-    var hiddenImageByteData = await rootBundle.load(hiddenImagePath);
-    return hiddenImageByteData.buffer.asUint8List();
+  Future<Uint8List> loadImage(String imagePath) async {
+    var imageByteData = await rootBundle.load(imagePath);
+    return imageByteData.buffer.asUint8List();
   }
 
   Future<Uint8List> hideImage(

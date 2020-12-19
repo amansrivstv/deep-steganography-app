@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -52,26 +51,25 @@ class DeepSteganography {
 
     var outputsFormodelhide = Map<int, dynamic>();
     // image 1 224 224 3
-    // var outputImageData = [
-    //   List.generate(
-    //     MODEL_IMAGE_SIZE,
-    //     (index) => List.generate(
-    //       MODEL_IMAGE_SIZE,
-    //       (index) => List.generate(3, (index) => 0.0),
-    //     ),
-    //   ),
-    // ];
-    // outputsFormodelhide[0] = outputImageData;
+    var outputImageData = [
+      List.generate(
+        MODEL_IMAGE_SIZE,
+        (index) => List.generate(
+          MODEL_IMAGE_SIZE,
+          (index) => List.generate(3, (index) => 0.0),
+        ),
+      ),
+    ];
+    outputsFormodelhide[0] = outputImageData;
 
-    outputsFormodelhide[0] = [1];
+    // outputsFormodelhide[0] = [1];
 
     print(inputsFormodelhide);
 
     interpreterHide.runForMultipleInputs(
         inputsFormodelhide, outputsFormodelhide);
 
-    var outputImage =
-        _convertArrayToImage(outputsFormodelhide[0], MODEL_IMAGE_SIZE);
+    var outputImage = _convertArrayToImage(outputImageData, MODEL_IMAGE_SIZE);
     var rotateOutputImage = img.copyRotate(outputImage, 90);
     var flipOutputImage = img.flipHorizontal(rotateOutputImage);
     var resultImage = img.copyResize(flipOutputImage,
@@ -96,47 +94,49 @@ class DeepSteganography {
 
     var outputsFormodelreveal = Map<int, dynamic>();
     // image 1 224 224 3
-    // var outputImageData = [
-    //   List.generate(
-    //     MODEL_IMAGE_SIZE,
-    //     (index) => List.generate(
-    //       MODEL_IMAGE_SIZE,
-    //       (index) => List.generate(3, (index) => 0.0),
-    //     ),
-    //   ),
-    // ];
-    outputsFormodelreveal[0] = [1];
-    outputsFormodelreveal[1] = [1];
+    var outputImageData = [
+      List.generate(
+        MODEL_IMAGE_SIZE,
+        (index) => List.generate(
+          MODEL_IMAGE_SIZE,
+          (index) => List.generate(3, (index) => 0.0),
+        ),
+      ),
+    ];
+    outputsFormodelreveal[0] = outputImageData;
+    // outputsFormodelreveal[0] = [1];
+    // outputsFormodelreveal[1] = [1];
 
     interpreterReveal.runForMultipleInputs(
         inputsFormodelreveal, outputsFormodelreveal);
 
-    var outputImage =
-        _convertArrayToImage(outputsFormodelreveal[0], MODEL_IMAGE_SIZE);
+    var outputImage = _convertArrayToImage(outputImageData, MODEL_IMAGE_SIZE);
     var rotateOutputImage = img.copyRotate(outputImage, 90);
     var flipOutputImage = img.flipHorizontal(rotateOutputImage);
     var resultImage = img.copyResize(flipOutputImage,
         width: hiddenImageTemp.width, height: hiddenImageTemp.height);
 
-    var resultImageOnePath = await ImageGallerySaver.saveImage(
+    var resultImagePath = await ImageGallerySaver.saveImage(
       img.encodeJpg(resultImage),
-      name: "Ouput One",
+      name: "Secret Hidden Image",
     );
-
-    outputImage =
-        _convertArrayToImage(outputsFormodelreveal[1], MODEL_IMAGE_SIZE);
-    rotateOutputImage = img.copyRotate(outputImage, 90);
-    flipOutputImage = img.flipHorizontal(rotateOutputImage);
-    resultImage = img.copyResize(flipOutputImage,
-        width: hiddenImageTemp.width, height: hiddenImageTemp.height);
-
-    var resultImageTwoPath = await ImageGallerySaver.saveImage(
-      img.encodeJpg(resultImage),
-      name: "Ouput Two",
-    );
-
-    return [resultImageOnePath, resultImageTwoPath];
+    return resultImagePath["filePath"];
   }
+
+  // outputImage =
+  //     _convertArrayToImage(outputsFormodelreveal[1], MODEL_IMAGE_SIZE);
+  // rotateOutputImage = img.copyRotate(outputImage, 90);
+  // flipOutputImage = img.flipHorizontal(rotateOutputImage);
+  // resultImage = img.copyResize(flipOutputImage,
+  //     width: hiddenImageTemp.width, height: hiddenImageTemp.height);
+
+  // var resultImageTwoPath = await ImageGallerySaver.saveImage(
+  //   img.encodeJpg(resultImage),
+  //   name: "Ouput Two",
+  // );
+
+  //   return [resultImageOnePath, resultImageTwoPath];
+  // }
 
   img.Image _convertArrayToImage(
       List<List<List<List<double>>>> imageArray, int inputSize) {

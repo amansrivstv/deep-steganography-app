@@ -15,10 +15,13 @@ class DeepSteganography {
   Interpreter interpreterReveal;
   Interpreter interpreterHide;
 
+  var interpreterOptions = InterpreterOptions()..useNnApiForAndroid = true;
+
   Future<void> loadModel() async {
-    // TODO Exception
-    interpreterReveal = await Interpreter.fromAsset(_revealModelFile);
-    interpreterHide = await Interpreter.fromAsset(_hideModelFile);
+    interpreterReveal = await Interpreter.fromAsset(_revealModelFile,
+        options: interpreterOptions);
+    interpreterHide = await Interpreter.fromAsset(_hideModelFile,
+        options: interpreterOptions);
   }
 
   void dispose() {
